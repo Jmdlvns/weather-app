@@ -1,0 +1,107 @@
+<div class="content" *ngIf="weather">
+  <header class="header">
+    <div class="search-container" [formGroup]="searchForm">
+      <div class="search-input-wrapper">
+        <input
+          type="text"
+          class="search-input"
+          placeholder="Enter City"
+          formControlName="city"
+          [formControl]="searchControl"
+          (keyup.enter)="searchWeather()"
+        />
+        <ul *ngIf="citySuggestions.length > 0" class="suggestions-list">
+          <li
+            *ngFor="let suggestion of citySuggestions"
+            (click)="suggestion.name !== '(no such city)' && selectCity(suggestion)"
+          >
+            {{ suggestion.name }} {{ suggestion.country }}
+          </li>
+        </ul>
+      </div>
+      <button class="search-button" (click)="searchWeather()">Search</button>
+      <button class="search-button show-location-button" (click)="showLocation()">
+        <i class="fas fa-map-marker-alt"></i>
+      </button>
+    </div>
+  </header>
+
+  <div class="main-content">
+    <div class="main-weather">
+      <div class="weather-main">
+        <div class="header">
+          <p class="date">{{ weather.current.last_updated | date: 'fullDate' }}</p>
+          <div class="temperature-buttons">
+            <button
+              class="unit-button"
+              [class.active]="selectedTemperatureUnit === 'celsius'"
+              (click)="setTemperatureUnit('celsius')"
+            >
+              °C
+            </button>
+            <button
+              class="unit-button"
+              [class.active]="selectedTemperatureUnit === 'fahrenheit'"
+              (click)="setTemperatureUnit('fahrenheit')"
+            >
+              °F
+            </button>
+          </div>
+          <p class="time">{{ weather.current.last_updated | date: 'shortTime' }}</p>
+        </div>
+        <h1 class="city-name">{{ currentCity | titlecase }}</h1>
+        <img [src]="weatherGif" class="main-weather-gif" alt="Weather GIF" />
+        <div class="temperature">
+          <p>
+            {{ selectedTemperatureUnit === 'celsius' ? weather.current.temp_c + '°C' : weather.current.temp_f + '°F' }}
+          </p>
+        </div>
+        <p class="wcond">{{ weather.current.condition.text }}</p>
+
+        <!-- Fahrenheit and Celsius Buttons -->
+        
+
+        <div class="selectors">
+          <div class="data-options">
+            <ul class="tabs">
+              <li
+                *ngFor="let option of dataOptions"
+                (click)="selectDataOption(option)"
+                [class.active]="selectedDataToShow === option"
+              >
+                {{ option | titlecase }}
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="weather-info">
+          <div class="additional-info">
+            <div class="info-box" *ngIf="selectedDataToShow === 'heatIndex'">
+              <p>Heat Index: {{ selectedTemperatureUnit === 'celsius' ? weather.current.heatindex_c + '°C' : weather.current.heatindex_f + '°F' }}</p>
+            </div>
+            <div class="info-box" *ngIf="selectedDataToShow === 'windSpeed'">
+              <p>Wind Speed: {{ weather.current.wind_kph }} kph</p>
+            </div>
+            <div class="info-box" *ngIf="selectedDataToShow === 'humidity'">
+              <p>Humidity: {{ weather.current.humidity }}%</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="forecast-section">
+      <div class="forecast-card" *ngFor="let day of forecast">
+        <h3>{{ day.date | date: 'longDate' }}</h3>
+        <img class="weather-gif" [src]="day.weatherIconGif" alt="Weather GIF" />
+        <p>Max Temperature: {{ selectedTemperatureUnit === 'celsius' ? day.day.maxtemp_c + '°C' : day.day.maxtemp_f + '°F' }}</p>
+        <p>Min Temperature: {{ selectedTemperatureUnit === 'celsius' ? day.day.mintemp_c + '°C' : day.day.mintemp_f + '°F' }}</p>
+        <p>Condition: {{ day.day.condition.text }}</p>
+        <p>Wind Speed: {{ day.day.maxwind_kph }} kph</p>
+        <p *ngIf="day.day.heatindex_c">Heat Index: {{ day.day.heatindex_c }}°C</p>
+        <p>Humidity: {{ day.day.avghumidity }}%</p>
+      </div>
+    </div>
+  </div>
+</div>
